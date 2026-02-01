@@ -21,7 +21,7 @@ app:
   security:
     jwt:
       issuer: collabnex
-      expiration-minutes: 60
+      expiration-minutes: 600
       secret: zvV8eQkN93@w#tRj!cLzP2nTxhS6uYeM4oQvA1rD9kB7fGxW8n
   cors:
     allowed-origins: "http://localhost:5173,http://localhost:3000"
