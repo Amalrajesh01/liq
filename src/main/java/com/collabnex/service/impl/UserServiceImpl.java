@@ -19,22 +19,30 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User registerLocal(String fullName, String email, String rawPassword) {
-        if (userRepository.existsByEmailIgnoreCase(email)) {
-            throw new BusinessException("Email already registered");
-        }
-        User user = User.builder()
-                .email(email)
-                .passwordHash(passwordEncoder.encode(rawPassword))
-                .role(UserRole.USER)
-                .active(true)
-                .build();
-        user = userRepository.save(user);
-        UserProfile profile = UserProfile.builder()
-                .user(user).fullName(fullName).build();
-        profileRepository.save(profile);
-        return user;
+public User registerLocal(String fullName, String email, String rawPassword) {
+
+    if (userRepository.existsByEmailIgnoreCase(email)) {
+        throw new BusinessException("Email already registered");
     }
+
+    User user = User.builder()
+            .email(email)
+            .passwordHash(passwordEncoder.encode(rawPassword))
+            .role(UserRole.CLIENT)
+            .status(UserStatus.ACTIVE)
+            .build();
+
+    user = userRepository.save(user);
+
+    UserProfile profile = UserProfile.builder()
+            .user(user)
+            .fullName(fullName)
+            .build();
+
+    profileRepository.save(profile);
+
+    return user;
+}
 
     @Override
     public User getById(Long id) {

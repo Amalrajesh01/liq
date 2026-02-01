@@ -3,32 +3,37 @@ package com.collabnex.domain.user;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "user_profiles")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserProfile {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name="user_id", nullable=false, unique=true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonIgnore
     private User user;
 
-    @Column(name="full_name", nullable=false, length=160)
+    @Column(name = "full_name", length = 255)
     private String fullName;
 
-    @Column(columnDefinition = "TEXT")
-    private String bio;
+    @Column(length = 20)
+    private String phone;
 
-    @Column(columnDefinition = "JSON")
-    private String skills;
+    @Column(name = "organization_name", length = 255)
+    private String organizationName;
 
-    @Column(name="profile_image_url", length=512)
-    private String profileImageUrl;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "organization_type", length = 20)
+    private OrganizationType organizationType;
 
-    @Column(name="location_text", length=255)
-    private String locationText;
-
-    @Column(name="portfolio_url", length=512)
-    private String portfolioUrl;
 }

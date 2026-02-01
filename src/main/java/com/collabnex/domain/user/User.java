@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -16,39 +17,53 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, length = 255)
+
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
-    @Column(name = "password_hash")
+
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
-    @Column(name = "google_sub", length = 64)
-    private String googleSub;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private UserRole role;
-    @Column(name = "is_active", nullable = false)
-    private boolean active;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private UserStatus status;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
-    public void prePersist() {
+    public void onCreate() {
         Instant now = Instant.now();
-        createdAt = now;
-        updatedAt = now;
-        if (role == null)
-            role = UserRole.USER;
-        active = true;
+        this.createdAt = now;
+        this.updatedAt = now;
+
+        if (this.role == null) {
+            this.role = UserRole.CLIENT;
+        }
+        if (this.status == null) {
+            this.status = UserStatus.ACTIVE;
+        }
     }
 
     @PreUpdate
-    public void preUpdate() {
-        updatedAt = Instant.now();
+    public void onUpdate() {
+        this.updatedAt = Instant.now();
     }
+
+    /* =======================
+       Spring Security
+       ======================= */
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -72,7 +87,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return status != UserStatus.SUSPENDED;
     }
 
     @Override
@@ -82,6 +97,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return active;
+        return status == UserStatus.ACTIVE;
     }
 }
